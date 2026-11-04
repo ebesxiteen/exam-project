@@ -4,6 +4,7 @@ from app.infrastructure.db.repositories.attempt_repository import SqlAlchemyAtte
 from app.infrastructure.db.repositories.exam_repository import SqlAlchemyExamRepository
 from app.infrastructure.db.repositories.question_repository import SqlAlchemyQuestionRepository
 from app.infrastructure.db.repositories.user_repository import SqlAlchemyUserRepository
+from app.infrastructure.db.repositories.violation_repository import SqlAlchemyViolationRepository
 
 
 class SqlAlchemyUnitOfWork:
@@ -18,6 +19,7 @@ class SqlAlchemyUnitOfWork:
         self.questions = SqlAlchemyQuestionRepository(self.session)
         self.exams = SqlAlchemyExamRepository(self.session)
         self.attempts = SqlAlchemyAttemptRepository(self.session)
+        self.violations = SqlAlchemyViolationRepository(self.session)
         return self
 
     async def __aexit__(self, *exc) -> None:

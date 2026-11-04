@@ -12,7 +12,7 @@ from app.infrastructure.config import settings
 from app.infrastructure.db.engine import init_db
 from app.presentation.api.dependencies import clock, uow_factory
 from app.presentation.api.error_handlers import register_error_handlers
-from app.presentation.api.routers import attempts, auth, demo, exams, questions, users
+from app.presentation.api.routers import attempts, auth, demo, exams, questions, users, violations
 from app.presentation.api.ws import exam_clock
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
@@ -71,7 +71,7 @@ def create_app() -> FastAPI:
         return JSONResponse({"detail": "Lỗi máy chủ nội bộ"}, status_code=500)
 
     for router in (auth.router, users.router, questions.router, exams.router, attempts.router,
-                   exam_clock.router, demo.router):
+                   exam_clock.router, violations.router, demo.router):
         app.include_router(router)
 
     @app.get("/health", tags=["System"])

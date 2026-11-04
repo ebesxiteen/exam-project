@@ -92,6 +92,14 @@ class GradeInputs:
     total_questions: int
 
 
+@dataclass
+class Violation:
+    attempt_id: int
+    type: str
+    occurred_at: datetime
+    id: int | None = None
+
+
 @dataclass(frozen=True)
 class ExamResultRow:
     user_id: int
