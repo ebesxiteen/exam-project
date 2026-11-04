@@ -38,5 +38,11 @@ class SqlAlchemyUserRepository:
         rows = (await self.session.execute(stmt.order_by(UserORM.id).offset(skip).limit(limit))).scalars().all()
         return total, [to_user(r) for r in rows]
 
+    async def update_password(self, user_id: int, new_hash: str) -> None:
+        orm = await self.session.get(UserORM, user_id)
+        if orm is None:
+            raise ValueError("User not found")
+        orm.password_hash = new_hash
+
     async def count(self) -> int:
         return (await self.session.execute(select(func.count()).select_from(UserORM))).scalar_one()

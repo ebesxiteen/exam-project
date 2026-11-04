@@ -20,6 +20,7 @@ from app.application.use_cases.questions import CreateQuestion, DeleteQuestion, 
 from app.application.use_cases.users import CreateUser, ListUsers
 from app.domain import rules
 from app.domain.entities import ROLE_ADMIN, ROLE_STUDENT, ROLE_TEACHER, User
+from app.domain.errors import UnauthorizedError
 from app.domain.repositories import UnitOfWork
 from app.infrastructure.cache.ttl_cache import TTLCache
 from app.infrastructure.clock import SystemClock
@@ -28,13 +29,14 @@ from app.infrastructure.db.engine import SessionLocal
 from app.infrastructure.db.unit_of_work import SqlAlchemyUnitOfWork
 from app.infrastructure.rate_limit import LoginRateLimiter
 from app.infrastructure.security.jwt_service import JwtTokenService
-from app.infrastructure.security.scrypt_hasher import ScryptHasher
+from app.infrastructure.security.bcrypt_hasher import BcryptHasher
 
 # ---- Dịch vụ dùng chung (mỗi tiến trình một bản) -----------------------------------------------------
-hasher = ScryptHasher()
+hasher = BcryptHasher()
 tokens = JwtTokenService(settings.secret_key, settings.jwt_algorithm, settings.token_expire_minutes)
 clock = SystemClock()
 exam_cache = TTLCache()
+token_blacklist = TTLCache()
 login_rate_limiter = LoginRateLimiter(settings)
 attempt_policy = AttemptPolicy(settings.cache_enabled, settings.cache_ttl_seconds, settings.submit_grace_seconds)
 
@@ -54,10 +56,12 @@ UowDep = Annotated[UnitOfWork, Depends(get_uow)]
 
 
 # ---- Xác thực và phân quyền ----------------------------------------------------------------------------
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/login")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/login")
 
 
 async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)], uow: UowDep) -> User:
+    if token_blacklist.get(token) is not None:
+        raise UnauthorizedError("Token đã bị thu hồi")
     return await Authenticate(uow, tokens).execute(token)
 
 
