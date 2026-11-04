@@ -100,6 +100,7 @@ export function useAttemptSession(examId, { onFinished }) {
   }, [attempt, debouncedSave, finish]);
 
   return {
+    attemptId: attempt?.id ?? null,
     questions: attempt?.questions ?? [],
     answers,
     remaining,

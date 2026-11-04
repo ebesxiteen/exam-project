@@ -8,7 +8,8 @@ const AuthContext = createContext(null);
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(tokenStore.token ? tokenStore.user : null);
 
-  const logout = useCallback(() => {
+  const logout = useCallback(async () => {
+    try { await authApi.logout(); } catch { /* token đã hết hạn hoặc lỗi mạng — vẫn xóa local */ }
     tokenStore.clear();
     setUser(null);
   }, []);

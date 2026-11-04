@@ -5,12 +5,17 @@ import logging
 from collections import defaultdict
 from datetime import UTC, datetime
 
-from fastapi import APIRouter, status
+from typing import Annotated, Optional
+
+from fastapi import APIRouter, Depends, Query, status
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 
-from app.domain.entities import Violation
-from app.presentation.api.dependencies import Student, Teacher, UowDep
+from app.domain.entities import Violation, User
+from app.domain.errors import UnauthorizedError
+from app.presentation.api.dependencies import Student, UowDep, token_blacklist, tokens, uow_factory
+from app.domain.entities import ROLE_TEACHER, ROLE_ADMIN
+from app.domain import rules
 
 log = logging.getLogger("exam.violations")
 router = APIRouter(prefix="/api/v1", tags=["Violations (giám sát thi)"])
@@ -56,8 +61,21 @@ async def report_violation(attempt_id: int, data: ViolationIn, uow: UowDep, user
     return out
 
 
+async def _get_teacher_from_token(token: Annotated[Optional[str], Query()] = None) -> User:
+    """Dependency cho SSE: đọc token từ query param vì EventSource không hỗ trợ Authorization header."""
+    if not token:
+        raise UnauthorizedError("Thiếu token")
+    if token_blacklist.get(token) is not None:
+        raise UnauthorizedError("Token đã bị thu hồi")
+    from app.application.use_cases.auth import Authenticate
+    async with uow_factory() as uow:
+        user = await Authenticate(uow, tokens).execute(token)
+    rules.ensure_role(user, ROLE_TEACHER, ROLE_ADMIN)
+    return user
+
+
 @router.get("/exams/{exam_id}/violations/stream")
-async def stream_violations(exam_id: int, teacher: Teacher):
+async def stream_violations(exam_id: int, teacher: Annotated[User, Depends(_get_teacher_from_token)]):
     """SSE stream: giám thị subscribe để nhận vi phạm real-time khi thí sinh ghi nhận."""
 
     async def event_generator():
