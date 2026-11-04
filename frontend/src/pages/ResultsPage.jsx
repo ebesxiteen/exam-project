@@ -37,7 +37,10 @@ function ViolationsStream({ examId }) {
       const data = JSON.parse(e.data);
       if (data.connected) { setConnected(true); return; }
       if (data.done) { es.close(); esRef.current = null; setConnected(false); setDone(true); return; }
-      setViolations((prev) => [data, ...prev].slice(0, 100));
+      setViolations((prev) => {
+        if (prev.some((v) => v.id === data.id)) return prev;
+        return [data, ...prev].slice(0, 100);
+      });
     };
     es.onerror = () => { es.close(); esRef.current = null; setConnected(false); };
   };

@@ -31,8 +31,13 @@ export default function TakeExamPage() {
       if (id != null) attemptsApi.reportViolation(id, type).catch(() => {});
     };
 
+    let lastTabSwitch = 0;
     const onVisibility = () => {
-      if (document.visibilityState === "hidden") report("tab_switch");
+      if (document.visibilityState !== "hidden") return;
+      const now = Date.now();
+      if (now - lastTabSwitch < 1000) return; // bỏ qua nếu fire trong vòng 1s
+      lastTabSwitch = now;
+      report("tab_switch");
     };
     const onFullscreen = () => {
       if (!document.fullscreenElement) report("fullscreen_exit");
