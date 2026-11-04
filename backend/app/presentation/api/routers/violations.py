@@ -73,6 +73,15 @@ async def _get_teacher_from_token(token: Annotated[Optional[str], Query()] = Non
     return user
 
 
+@router.get("/exams/{exam_id}/violations", response_model=list[ViolationOut])
+async def list_exam_violations(exam_id: int, uow: UowDep,
+                               teacher: Annotated[User, Depends(_get_teacher_from_token)]):
+    """Lấy toàn bộ lịch sử vi phạm của một đề thi (cho giáo viên)."""
+    async with uow:
+        violations = await uow.violations.list_by_exam(exam_id)
+    return [ViolationOut.from_entity(v) for v in violations]
+
+
 @router.get("/exams/{exam_id}/violations/stream")
 async def stream_violations(exam_id: int, teacher: Annotated[User, Depends(_get_teacher_from_token)]):
     """SSE stream: giám thị subscribe để nhận vi phạm real-time khi thí sinh ghi nhận."""

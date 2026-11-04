@@ -15,7 +15,7 @@ function ViolationsStream({ examId }) {
   const [connected, setConnected] = useState(false);
   const esRef = useRef(null);
 
-  const toggle = () => {
+  const toggle = async () => {
     if (esRef.current) {
       esRef.current.close();
       esRef.current = null;
@@ -24,6 +24,17 @@ function ViolationsStream({ examId }) {
     }
     const token = tokenStore.token;
     if (!token) return;
+
+    // Load lịch sử vi phạm trước
+    try {
+      const res = await fetch(`${BASE}/api/v1/exams/${examId}/violations?token=${encodeURIComponent(token)}`);
+      if (res.ok) {
+        const history = await res.json();
+        setViolations(history.slice().reverse().slice(0, 100));
+      }
+    } catch { /* bỏ qua lỗi fetch history */ }
+
+    // Rồi mới connect SSE để nhận real-time
     const url = `${BASE}/api/v1/exams/${examId}/violations/stream?token=${encodeURIComponent(token)}`;
     const es = new EventSource(url);
     esRef.current = es;

@@ -2,7 +2,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.domain.entities import Violation
-from app.infrastructure.db.orm_models import ViolationORM
+from app.infrastructure.db.orm_models import AttemptORM, ViolationORM
 
 
 def _to_violation(orm: ViolationORM) -> Violation:
@@ -22,5 +22,14 @@ class SqlAlchemyViolationRepository:
     async def list_by_attempt(self, attempt_id: int) -> list[Violation]:
         rows = (await self.session.execute(
             select(ViolationORM).where(ViolationORM.attempt_id == attempt_id).order_by(ViolationORM.occurred_at)
+        )).scalars().all()
+        return [_to_violation(r) for r in rows]
+
+    async def list_by_exam(self, exam_id: int) -> list[Violation]:
+        rows = (await self.session.execute(
+            select(ViolationORM)
+            .join(AttemptORM, AttemptORM.id == ViolationORM.attempt_id)
+            .where(AttemptORM.exam_id == exam_id)
+            .order_by(ViolationORM.occurred_at)
         )).scalars().all()
         return [_to_violation(r) for r in rows]
