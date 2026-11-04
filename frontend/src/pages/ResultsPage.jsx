@@ -23,14 +23,14 @@ function ViolationsStream({ examId }) {
     setDone(false);
 
     try {
-      const res = await fetch(`${BASE}/api/v1/exams/${examId}/violations?token=${encodeURIComponent(token)}`);
+      const res = await fetch(`${BASE}/api/exams/${examId}/violations?token=${encodeURIComponent(token)}`);
       if (res.ok) {
         const history = await res.json();
         setViolations(history.slice().reverse().slice(0, 100));
       }
     } catch { /* bỏ qua lỗi fetch history */ }
 
-    const url = `${BASE}/api/v1/exams/${examId}/violations/stream?token=${encodeURIComponent(token)}`;
+    const url = `${BASE}/api/exams/${examId}/violations/stream?token=${encodeURIComponent(token)}`;
     const es = new EventSource(url);
     esRef.current = es;
     es.onmessage = (e) => {

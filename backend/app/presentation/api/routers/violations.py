@@ -17,7 +17,7 @@ from app.domain.errors import UnauthorizedError
 from app.presentation.api.dependencies import Student, UowDep, token_blacklist, tokens, uow_factory
 
 log = logging.getLogger("exam.violations")
-router = APIRouter(prefix="/api/v1", tags=["Violations (giám sát thi)"])
+router = APIRouter(prefix="/api", tags=["Violations (giám sát thi)"])
 
 # Event bus in-memory: exam_id → list of subscriber queues
 _subscribers: dict[int, list[asyncio.Queue]] = defaultdict(list)
