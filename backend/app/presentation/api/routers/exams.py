@@ -18,7 +18,7 @@ from app.presentation.api.dependencies import (
 from app.presentation.api.schemas.exams import ExamDetail, ExamIn, ExamOut, ExamResultRow
 from app.presentation.api.schemas.questions import QuestionOut
 
-router = APIRouter(prefix="/api/exams", tags=["Exams"])
+router = APIRouter(prefix="/api/v1/exams", tags=["Exams"])
 
 
 @router.post("", response_model=ExamOut, status_code=status.HTTP_201_CREATED)
