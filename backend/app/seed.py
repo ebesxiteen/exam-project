@@ -11,7 +11,7 @@ from app.domain.entities import ROLE_ADMIN, ROLE_STUDENT, ROLE_TEACHER, Choice, 
 from app.infrastructure.clock import SystemClock
 from app.infrastructure.db.engine import SessionLocal, init_db
 from app.infrastructure.db.unit_of_work import SqlAlchemyUnitOfWork
-from app.infrastructure.security.scrypt_hasher import ScryptHasher
+from app.infrastructure.security.bcrypt_hasher import BcryptHasher
 
 QUESTIONS = [
     ("FastAPI chạy trên chuẩn giao tiếp web nào?", ["WSGI", "ASGI", "CGI", "FastCGI"], 1),
@@ -33,7 +33,7 @@ QUESTIONS = [
 
 async def seed(n_students: int = 50) -> None:
     await init_db()
-    hasher = ScryptHasher()
+    hasher = BcryptHasher()
     async with SqlAlchemyUnitOfWork(SessionLocal) as uow:
         if await uow.users.count() > 0:
             print("CSDL đã có dữ liệu, bỏ qua.")

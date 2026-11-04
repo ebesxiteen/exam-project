@@ -1,3 +1,4 @@
+from pydantic import AliasChoices, Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -7,11 +8,17 @@ class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
     # PostgreSQL chạy bằng `docker compose up -d db` (xem docker-compose.yml).
-    database_url: str = "postgresql+asyncpg://exam:exam@localhost:5432/exam"
+    database_url: str = Field(
+        default="postgresql+asyncpg://exam:exam@localhost:5432/exam",
+        validation_alias=AliasChoices("DATABASE_URL", "POSTGRES_SERVER"),
+    )
     db_pool_size: int = 20
     db_max_overflow: int = 20
 
-    secret_key: str = "change-me-in-production"
+    secret_key: str = Field(
+        default="change-me-in-production",
+        validation_alias=AliasChoices("SECRET_KEY", "JWT_SECRET"),
+    )
     jwt_algorithm: str = "HS256"
     token_expire_minutes: int = 120
 
