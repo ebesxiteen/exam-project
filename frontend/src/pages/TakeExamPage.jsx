@@ -21,6 +21,11 @@ export default function TakeExamPage() {
   useEffect(() => {
     if (!session.ready) return;
 
+    // Yêu cầu fullscreen khi bắt đầu thi để có thể detect khi thoát ra
+    if (document.documentElement.requestFullscreen && !document.fullscreenElement) {
+      document.documentElement.requestFullscreen().catch(() => {});
+    }
+
     const report = (type) => {
       const id = attemptIdRef.current;
       if (id != null) attemptsApi.reportViolation(id, type).catch(() => {});
@@ -38,6 +43,9 @@ export default function TakeExamPage() {
     return () => {
       document.removeEventListener("visibilitychange", onVisibility);
       document.removeEventListener("fullscreenchange", onFullscreen);
+      if (document.exitFullscreen && document.fullscreenElement) {
+        document.exitFullscreen().catch(() => {});
+      }
     };
   }, [session.ready]);
 
