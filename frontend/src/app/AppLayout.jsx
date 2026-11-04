@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useState } from "react";
 import { Link, Outlet } from "react-router-dom";
 import { authApi } from "../features/auth/authApi.js";
 import { ROLE_LABEL, useAuth } from "../features/auth/AuthContext.jsx";
