@@ -83,10 +83,11 @@ async def stream_violations(exam_id: int, teacher: Annotated[User, Depends(_get_
         try:
             yield "data: {\"connected\": true}\n\n"
             while True:
-                violation: ViolationOut = await asyncio.wait_for(q.get(), timeout=30)
-                yield f"data: {json.dumps(violation.model_dump(mode='json'))}\n\n"
-        except asyncio.TimeoutError:
-            yield ": keepalive\n\n"
+                try:
+                    violation: ViolationOut = await asyncio.wait_for(q.get(), timeout=30)
+                    yield f"data: {json.dumps(violation.model_dump(mode='json'))}\n\n"
+                except asyncio.TimeoutError:
+                    yield ": keepalive\n\n"
         except asyncio.CancelledError:
             pass
         finally:
