@@ -86,6 +86,17 @@ async def list_exam_violations(exam_id: int, uow: UowDep,
 async def stream_violations(exam_id: int, teacher: Annotated[User, Depends(_get_teacher_from_token)]):
     """SSE stream: giám thị subscribe để nhận vi phạm real-time khi thí sinh ghi nhận."""
 
+    async def has_active_attempts() -> bool:
+        from app.infrastructure.db.orm_models import AttemptORM
+        from sqlalchemy import select
+        async with uow_factory() as uow:
+            row = (await uow.session.execute(
+                select(AttemptORM.id)
+                .where(AttemptORM.exam_id == exam_id, AttemptORM.submitted_at.is_(None))
+                .limit(1)
+            )).first()
+        return row is not None
+
     async def event_generator():
         q: asyncio.Queue = asyncio.Queue()
         _subscribers[exam_id].append(q)
@@ -96,6 +107,9 @@ async def stream_violations(exam_id: int, teacher: Annotated[User, Depends(_get_
                     violation: ViolationOut = await asyncio.wait_for(q.get(), timeout=30)
                     yield f"data: {json.dumps(violation.model_dump(mode='json'))}\n\n"
                 except asyncio.TimeoutError:
+                    if not await has_active_attempts():
+                        yield "data: {\"done\": true}\n\n"
+                        return
                     yield ": keepalive\n\n"
         except asyncio.CancelledError:
             pass

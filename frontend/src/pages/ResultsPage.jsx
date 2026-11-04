@@ -13,19 +13,15 @@ const BASE = import.meta.env.VITE_API_URL || "http://localhost:8000";
 function ViolationsStream({ examId }) {
   const [violations, setViolations] = useState([]);
   const [connected, setConnected] = useState(false);
+  const [done, setDone] = useState(false);
   const esRef = useRef(null);
 
-  const toggle = async () => {
-    if (esRef.current) {
-      esRef.current.close();
-      esRef.current = null;
-      setConnected(false);
-      return;
-    }
+  const connect = async () => {
+    if (esRef.current) return;
     const token = tokenStore.token;
     if (!token) return;
+    setDone(false);
 
-    // Load lịch sử vi phạm trước
     try {
       const res = await fetch(`${BASE}/api/v1/exams/${examId}/violations?token=${encodeURIComponent(token)}`);
       if (res.ok) {
@@ -34,28 +30,37 @@ function ViolationsStream({ examId }) {
       }
     } catch { /* bỏ qua lỗi fetch history */ }
 
-    // Rồi mới connect SSE để nhận real-time
     const url = `${BASE}/api/v1/exams/${examId}/violations/stream?token=${encodeURIComponent(token)}`;
     const es = new EventSource(url);
     esRef.current = es;
     es.onmessage = (e) => {
       const data = JSON.parse(e.data);
       if (data.connected) { setConnected(true); return; }
+      if (data.done) { es.close(); esRef.current = null; setConnected(false); setDone(true); return; }
       setViolations((prev) => [data, ...prev].slice(0, 100));
     };
     es.onerror = () => { es.close(); esRef.current = null; setConnected(false); };
   };
 
-  useEffect(() => () => esRef.current?.close(), []);
+  const stop = () => {
+    esRef.current?.close();
+    esRef.current = null;
+    setConnected(false);
+  };
+
+  // Tự động connect khi mount
+  useEffect(() => { connect(); return () => esRef.current?.close(); }, []);
 
   return (
     <div style={{ marginTop: "1.5rem" }}>
       <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", marginBottom: "0.5rem" }}>
         <strong>Vi phạm real-time</strong>
-        <button onClick={toggle} style={{ fontSize: "0.8rem" }}>
-          {connected ? "Dừng theo dõi" : "Bắt đầu theo dõi"}
-        </button>
-        {connected && <span style={{ color: "green", fontSize: "0.8rem" }}>● Đang kết nối</span>}
+        {connected
+          ? <><span style={{ color: "green", fontSize: "0.8rem" }}>● Đang kết nối</span>
+              <button onClick={stop} style={{ fontSize: "0.8rem" }}>Dừng theo dõi</button></>
+          : <><span style={{ color: "#999", fontSize: "0.8rem" }}>{done ? "● Hết thí sinh thi" : "● Đã ngắt"}</span>
+              <button onClick={connect} style={{ fontSize: "0.8rem" }}>Kết nối lại</button></>
+        }
       </div>
       {violations.length === 0 ? (
         <p style={{ fontSize: "0.85rem", color: "#888" }}>Chưa có vi phạm nào được ghi nhận.</p>
