@@ -7,4 +7,6 @@ export const attemptsApi = {
     request(`/api/attempts/${attemptId}/answers`, { method: "PUT", json: { answers } }),
   submit: (attemptId) => request(`/api/attempts/${attemptId}/submit`, { method: "POST" }),
   result: (attemptId) => request(`/api/attempts/${attemptId}/result`),
+  reportViolation: (attemptId, type) =>
+    request(`/api/attempts/${attemptId}/violations`, { method: "POST", json: { type } }),
 };

@@ -100,3 +100,12 @@ class AttemptAnswerORM(Base):
     attempt_id: Mapped[int] = mapped_column(ForeignKey("attempts.id", ondelete="CASCADE"), primary_key=True)
     question_id: Mapped[int] = mapped_column(ForeignKey("questions.id"), primary_key=True)
     choice_id: Mapped[int] = mapped_column(ForeignKey("choices.id"))
+
+
+class ViolationORM(Base):
+    __tablename__ = "violations"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    attempt_id: Mapped[int] = mapped_column(ForeignKey("attempts.id", ondelete="CASCADE"), index=True)
+    type: Mapped[str] = mapped_column(String(50))  # tab_switch | fullscreen_exit | copy_paste | ...
+    occurred_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow)

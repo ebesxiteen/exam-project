@@ -13,7 +13,7 @@ from app.presentation.api.dependencies import (
 from app.presentation.api.schemas.common import Page
 from app.presentation.api.schemas.questions import QuestionIn, QuestionOut
 
-router = APIRouter(prefix="/api/v1/questions", tags=["Question bank"])
+router = APIRouter(prefix="/api/questions", tags=["Question bank"])
 
 
 @router.post("", response_model=QuestionOut, status_code=status.HTTP_201_CREATED)

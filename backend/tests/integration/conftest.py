@@ -51,7 +51,7 @@ def headers(token: str) -> dict:
 
 
 def login(client: TestClient, username: str, password: str) -> str:
-    r = client.post("/api/v1/auth/login", data={"username": username, "password": password})
+    r = client.post("/api/auth/login", data={"username": username, "password": password})
     assert r.status_code == 200, r.text
     return r.json()["access_token"]
 
@@ -80,7 +80,7 @@ def new_student(client):
 
     def make():
         username = f"sv_{uuid.uuid4().hex[:10]}"
-        r = client.post("/api/v1/auth/register", json={"username": username, "password": "Student@123", "full_name": "SV Test"})
+        r = client.post("/api/auth/register", json={"username": username, "password": "Student@123", "full_name": "SV Test"})
         assert r.status_code == 201, r.text
         return username, headers(login(client, username, "Student@123"))
 
@@ -91,7 +91,7 @@ def make_exam(client, teacher, *, start=None, end=None, publish=True, n_question
     """Tạo n câu hỏi (4 lựa chọn, đáp án đúng là lựa chọn thứ hai) và một đề. Trả về dict mô tả đề."""
     questions = []
     for i in range(n_questions):
-        r = client.post("/api/v1/questions", headers=teacher, json={
+        r = client.post("/api/questions", headers=teacher, json={
             "content": f"Câu hỏi số {i + 1}?",
             "choices": [{"text": "A"}, {"text": "B", "is_correct": True}, {"text": "C"}, {"text": "D"}],
         })
@@ -103,7 +103,7 @@ def make_exam(client, teacher, *, start=None, end=None, publish=True, n_question
             "wrong": next(c["id"] for c in q["choices"] if not c["is_correct"]),
         })
     now = now_utc()
-    r = client.post("/api/v1/exams", headers=teacher, json={
+    r = client.post("/api/exams", headers=teacher, json={
         "title": title, "duration_minutes": 30,
         "start_time": iso(start or now - timedelta(hours=1)), "end_time": iso(end or now + timedelta(days=1)),
         "items": [{"question_id": q["id"], "points": 1} for q in questions],
@@ -111,7 +111,7 @@ def make_exam(client, teacher, *, start=None, end=None, publish=True, n_question
     assert r.status_code == 201, r.text
     exam = r.json()
     if publish:
-        assert client.post(f"/api/v1/exams/{exam['id']}/publish", headers=teacher).status_code == 200
+        assert client.post(f"/api/exams/{exam['id']}/publish", headers=teacher).status_code == 200
     return {"id": exam["id"], "questions": questions}
 
 

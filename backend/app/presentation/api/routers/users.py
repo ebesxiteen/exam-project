@@ -6,7 +6,7 @@ from app.presentation.api.dependencies import Admin, CreateUserDep, ListUsersDep
 from app.presentation.api.schemas.auth import UserCreate, UserOut
 from app.presentation.api.schemas.common import Page, Role
 
-router = APIRouter(prefix="/api/v1/users", tags=["Users (Admin)"])
+router = APIRouter(prefix="/api/users", tags=["Users (Admin)"])
 
 
 @router.get("", response_model=Page)

@@ -4,7 +4,7 @@ import time
 
 from fastapi import APIRouter
 
-router = APIRouter(prefix="/api/v1/demo", tags=["Demo async vs sync"])
+router = APIRouter(prefix="/api/demo", tags=["Demo async vs sync"])
 
 IO_SECONDS = 0.1
 

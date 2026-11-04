@@ -12,7 +12,7 @@ from .conftest import make_exam, now_utc
 
 
 def _start(client, student, exam_id):
-    return client.post(f"/api/v1/exams/{exam_id}/attempts", headers=student)
+    return client.post(f"/api/exams/{exam_id}/attempts", headers=student)
 
 
 def test_t04_question_needs_exactly_one_correct(client, teacher):
@@ -20,22 +20,22 @@ def test_t04_question_needs_exactly_one_correct(client, teacher):
         [{"text": "A"}, {"text": "B"}],  # 0 đáp án đúng
         [{"text": "A", "is_correct": True}, {"text": "B", "is_correct": True}],  # 2 đáp án đúng
     ):
-        r = client.post("/api/v1/questions", headers=teacher, json={"content": "Câu hỏi sai?", "choices": choices})
+        r = client.post("/api/questions", headers=teacher, json={"content": "Câu hỏi sai?", "choices": choices})
         assert r.status_code == 422
 
 
 def test_t05_teacher_creates_and_publishes_exam(client, teacher):
     exam = make_exam(client, teacher, publish=False, title="Đề nháp T05")
-    detail = client.get(f"/api/v1/exams/{exam['id']}", headers=teacher).json()
+    detail = client.get(f"/api/exams/{exam['id']}", headers=teacher).json()
     assert detail["is_published"] is False and detail["question_count"] == 4
-    r = client.post(f"/api/v1/exams/{exam['id']}/publish", headers=teacher)
+    r = client.post(f"/api/exams/{exam['id']}/publish", headers=teacher)
     assert r.status_code == 200 and r.json()["is_published"] is True
 
 
 def test_t06_student_sees_only_published(client, teacher, exam, new_student):
     draft = make_exam(client, teacher, publish=False, title="Đề nháp T06")
     _, student = new_student()
-    ids = {e["id"] for e in client.get("/api/v1/exams", headers=student).json()}
+    ids = {e["id"] for e in client.get("/api/exams", headers=student).json()}
     assert exam["id"] in ids
     assert draft["id"] not in ids
 
@@ -59,7 +59,7 @@ def test_t09_save_answer_of_other_question_rejected(client, exam, new_student):
     _, student = new_student()
     attempt = _start(client, student, exam["id"]).json()
     q0, q1 = exam["questions"][0], exam["questions"][1]
-    r = client.put(f"/api/v1/attempts/{attempt['id']}/answers", headers=student,
+    r = client.put(f"/api/attempts/{attempt['id']}/answers", headers=student,
                    json={"answers": [{"question_id": q0["id"], "choice_id": q1["correct"]}]})
     assert r.status_code == 422
 
@@ -72,14 +72,14 @@ def _answer_two_of_four(client, exam, student):
         {"question_id": qs[1]["id"], "choice_id": qs[1]["correct"]},
         {"question_id": qs[2]["id"], "choice_id": qs[2]["wrong"]},
     ]  # câu 4 bỏ trống
-    assert client.put(f"/api/v1/attempts/{attempt['id']}/answers", headers=student, json={"answers": answers}).status_code == 200
+    assert client.put(f"/api/attempts/{attempt['id']}/answers", headers=student, json={"answers": answers}).status_code == 200
     return attempt["id"]
 
 
 def test_t10_submit_and_grade(client, exam, new_student):
     _, student = new_student()
     attempt_id = _answer_two_of_four(client, exam, student)
-    r = client.post(f"/api/v1/attempts/{attempt_id}/submit", headers=student)
+    r = client.post(f"/api/attempts/{attempt_id}/submit", headers=student)
     assert r.status_code == 200
     body = r.json()
     assert (body["correct"], body["total"]) == (2, 4)
@@ -90,17 +90,17 @@ def test_t10_submit_and_grade(client, exam, new_student):
 def test_t11_submit_twice_keeps_result(client, exam, new_student):
     _, student = new_student()
     attempt_id = _answer_two_of_four(client, exam, student)
-    a = client.post(f"/api/v1/attempts/{attempt_id}/submit", headers=student).json()
-    b = client.post(f"/api/v1/attempts/{attempt_id}/submit", headers=student).json()
+    a = client.post(f"/api/attempts/{attempt_id}/submit", headers=student).json()
+    b = client.post(f"/api/attempts/{attempt_id}/submit", headers=student).json()
     assert a["score"] == b["score"] and a["submitted_at"] == b["submitted_at"]
 
 
 def test_t12_cannot_save_after_submit(client, exam, new_student):
     _, student = new_student()
     attempt_id = _answer_two_of_four(client, exam, student)
-    client.post(f"/api/v1/attempts/{attempt_id}/submit", headers=student)
+    client.post(f"/api/attempts/{attempt_id}/submit", headers=student)
     q = exam["questions"][3]
-    r = client.put(f"/api/v1/attempts/{attempt_id}/answers", headers=student,
+    r = client.put(f"/api/attempts/{attempt_id}/answers", headers=student,
                    json={"answers": [{"question_id": q["id"], "choice_id": q["correct"]}]})
     assert r.status_code == 409
 
@@ -116,8 +116,8 @@ def test_t14_cannot_read_other_students_attempt(client, exam, new_student):
     _, owner = new_student()
     _, other = new_student()
     attempt_id = _start(client, owner, exam["id"]).json()["id"]
-    assert client.get(f"/api/v1/attempts/{attempt_id}", headers=owner).status_code == 200
-    assert client.get(f"/api/v1/attempts/{attempt_id}", headers=other).status_code == 404
+    assert client.get(f"/api/attempts/{attempt_id}", headers=owner).status_code == 200
+    assert client.get(f"/api/attempts/{attempt_id}", headers=other).status_code == 404
 
 
 def test_t15_expired_attempt_is_auto_submitted(client, exam, new_student):
@@ -135,7 +135,7 @@ def test_t15_expired_attempt_is_auto_submitted(client, exam, new_student):
             return await AutoSubmitExpiredAttempts(uow, clock).execute()
 
     assert client.portal.call(expire_and_scan) >= 1
-    result = client.get(f"/api/v1/attempts/{attempt_id}/result", headers=student)
+    result = client.get(f"/api/attempts/{attempt_id}/result", headers=student)
     assert result.status_code == 200
     assert result.json()["auto_submitted"] is True and result.json()["score"] == 5.0
 
@@ -143,8 +143,8 @@ def test_t15_expired_attempt_is_auto_submitted(client, exam, new_student):
 def test_t18_export_results_csv(client, teacher, exam, new_student):
     username, student = new_student()
     attempt_id = _answer_two_of_four(client, exam, student)
-    client.post(f"/api/v1/attempts/{attempt_id}/submit", headers=student)
-    r = client.get(f"/api/v1/exams/{exam['id']}/results.csv", headers=teacher)
+    client.post(f"/api/attempts/{attempt_id}/submit", headers=student)
+    r = client.get(f"/api/exams/{exam['id']}/results.csv", headers=teacher)
     assert r.status_code == 200
     assert r.headers["content-type"].startswith("text/csv")
     lines = r.content.decode("utf-8-sig").splitlines()

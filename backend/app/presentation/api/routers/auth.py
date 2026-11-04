@@ -19,7 +19,7 @@ from app.presentation.api.dependencies import (
 )
 from app.presentation.api.schemas.auth import ChangePasswordIn, RegisterIn, TokenOut, UserOut
 
-router = APIRouter(prefix="/api/v1/auth", tags=["Auth"])
+router = APIRouter(prefix="/api/auth", tags=["Auth"])
 
 
 @router.post("/register", response_model=UserOut, status_code=status.HTTP_201_CREATED)

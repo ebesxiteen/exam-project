@@ -16,7 +16,7 @@ from app.presentation.api.dependencies import (
 from app.presentation.api.schemas.attempts import AnswersIn, AttemptDetail, AttemptOut, ResultOut
 
 log = logging.getLogger("exam.notify")
-router = APIRouter(prefix="/api/v1", tags=["Attempts (làm bài thi)"])
+router = APIRouter(prefix="/api", tags=["Attempts (làm bài thi)"])
 
 
 @router.post("/exams/{exam_id}/attempts", response_model=AttemptDetail)
