@@ -11,11 +11,10 @@ from fastapi import APIRouter, Depends, Query, status
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 
-from app.domain.entities import Violation, User
+from app.domain import rules
+from app.domain.entities import ROLE_ADMIN, ROLE_TEACHER, User, Violation
 from app.domain.errors import UnauthorizedError
 from app.presentation.api.dependencies import Student, UowDep, token_blacklist, tokens, uow_factory
-from app.domain.entities import ROLE_TEACHER, ROLE_ADMIN
-from app.domain import rules
 
 log = logging.getLogger("exam.violations")
 router = APIRouter(prefix="/api/v1", tags=["Violations (giám sát thi)"])

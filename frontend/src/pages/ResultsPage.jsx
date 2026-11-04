@@ -23,6 +23,7 @@ function ViolationsStream({ examId }) {
       return;
     }
     const token = tokenStore.token;
+    if (!token) return;
     const url = `${BASE}/api/v1/exams/${examId}/violations/stream?token=${encodeURIComponent(token)}`;
     const es = new EventSource(url);
     esRef.current = es;
