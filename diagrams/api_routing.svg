@@ -1,0 +1,107 @@
+<svg viewBox="0 0 720 480" xmlns="http://www.w3.org/2000/svg" font-family="Arial, sans-serif">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 6" refX="10" refY="3" markerWidth="8" markerHeight="6" orient="auto-start-reverse">
+      <path d="M0,0 L10,3 L0,6z" fill="#666"/>
+    </marker>
+  </defs>
+
+  <!-- Background -->
+  <rect width="720" height="480" fill="#FAFAFA" rx="8"/>
+
+  <!-- Title -->
+  <text x="360" y="32" text-anchor="middle" font-size="16" font-weight="bold" fill="#333">Cấu trúc API Routing — FastAPI APIRouter</text>
+
+  <!-- Main App box -->
+  <rect x="260" y="52" width="200" height="40" rx="6" fill="#4A90D9" stroke="#3A7BC8" stroke-width="1.5"/>
+  <text x="360" y="77" text-anchor="middle" font-size="14" font-weight="bold" fill="#fff">FastAPI App (main.py)</text>
+
+  <!-- include_router arrow -->
+  <line x1="360" y1="92" x2="360" y2="125" stroke="#666" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <text x="368" y="113" font-size="10" fill="#888">include_router()</text>
+
+  <!-- Router groups container -->
+  <rect x="20" y="130" width="680" height="330" rx="6" fill="none" stroke="#ddd" stroke-width="1" stroke-dasharray="4"/>
+  <text x="30" y="148" font-size="11" fill="#999">presentation/api/routers/</text>
+
+  <!-- Auth Router -->
+  <rect x="40" y="165" width="150" height="38" rx="5" fill="#E8F5E9" stroke="#66BB6A" stroke-width="1.5"/>
+  <text x="115" y="183" text-anchor="middle" font-size="12" font-weight="bold" fill="#2E7D32">/api/auth</text>
+  <text x="115" y="197" text-anchor="middle" font-size="9" fill="#555">Auth Router</text>
+
+  <rect x="40" y="212" width="150" height="70" rx="4" fill="#fff" stroke="#E0E0E0"/>
+  <text x="50" y="228" font-size="10" fill="#444">POST /login</text>
+  <text x="50" y="243" font-size="10" fill="#444">POST /register</text>
+  <text x="50" y="258" font-size="10" fill="#444">POST /refresh</text>
+  <text x="50" y="273" font-size="10" fill="#444">GET  /me</text>
+
+  <!-- Users Router -->
+  <rect x="210" y="165" width="150" height="38" rx="5" fill="#E3F2FD" stroke="#42A5F5" stroke-width="1.5"/>
+  <text x="285" y="183" text-anchor="middle" font-size="12" font-weight="bold" fill="#1565C0">/api/users</text>
+  <text x="285" y="197" text-anchor="middle" font-size="9" fill="#555">Users Router</text>
+
+  <rect x="210" y="212" width="150" height="70" rx="4" fill="#fff" stroke="#E0E0E0"/>
+  <text x="220" y="228" font-size="10" fill="#444">GET    /</text>
+  <text x="220" y="243" font-size="10" fill="#444">GET    /{id}</text>
+  <text x="220" y="258" font-size="10" fill="#444">POST   /</text>
+  <text x="220" y="273" font-size="10" fill="#444">PATCH  /{id}</text>
+
+  <!-- Exams Router -->
+  <rect x="380" y="165" width="150" height="38" rx="5" fill="#FFF3E0" stroke="#FFA726" stroke-width="1.5"/>
+  <text x="455" y="183" text-anchor="middle" font-size="12" font-weight="bold" fill="#E65100">/api/exams</text>
+  <text x="455" y="197" text-anchor="middle" font-size="9" fill="#555">Exams Router</text>
+
+  <rect x="380" y="212" width="150" height="70" rx="4" fill="#fff" stroke="#E0E0E0"/>
+  <text x="390" y="228" font-size="10" fill="#444">GET    /</text>
+  <text x="390" y="243" font-size="10" fill="#444">POST   /</text>
+  <text x="390" y="258" font-size="10" fill="#444">PATCH  /{id}</text>
+  <text x="390" y="273" font-size="10" fill="#444">DELETE /{id}</text>
+
+  <!-- Questions Router -->
+  <rect x="550" y="165" width="150" height="38" rx="5" fill="#F3E5F5" stroke="#AB47BC" stroke-width="1.5"/>
+  <text x="625" y="183" text-anchor="middle" font-size="12" font-weight="bold" fill="#6A1B9A">/api/questions</text>
+  <text x="625" y="197" text-anchor="middle" font-size="9" fill="#555">Questions Router</text>
+
+  <rect x="550" y="212" width="150" height="70" rx="4" fill="#fff" stroke="#E0E0E0"/>
+  <text x="560" y="228" font-size="10" fill="#444">GET    /</text>
+  <text x="560" y="243" font-size="10" fill="#444">POST   /</text>
+  <text x="560" y="258" font-size="10" fill="#444">PATCH  /{id}</text>
+  <text x="560" y="273" font-size="10" fill="#444">DELETE /{id}</text>
+
+  <!-- Attempts & Violations row -->
+  <rect x="100" y="305" width="160" height="38" rx="5" fill="#FFEBEE" stroke="#EF5350" stroke-width="1.5"/>
+  <text x="180" y="323" text-anchor="middle" font-size="12" font-weight="bold" fill="#C62828">/api/attempts</text>
+  <text x="180" y="337" text-anchor="middle" font-size="9" fill="#555">Attempts Router</text>
+
+  <rect x="100" y="352" width="160" height="55" rx="4" fill="#fff" stroke="#E0E0E0"/>
+  <text x="110" y="368" font-size="10" fill="#444">POST /attempts/start</text>
+  <text x="110" y="383" font-size="10" fill="#444">POST /attempts/{id}/submit</text>
+  <text x="110" y="398" font-size="10" fill="#444">GET  /attempts/{id}/result</text>
+
+  <rect x="290" y="305" width="160" height="38" rx="5" fill="#FBE9E7" stroke="#FF7043" stroke-width="1.5"/>
+  <text x="370" y="323" text-anchor="middle" font-size="12" font-weight="bold" fill="#BF360C">/api/violations</text>
+  <text x="370" y="337" text-anchor="middle" font-size="9" fill="#555">Violations Router</text>
+
+  <rect x="290" y="352" width="160" height="55" rx="4" fill="#fff" stroke="#E0E0E0"/>
+  <text x="300" y="368" font-size="10" fill="#444">POST /violations</text>
+  <text x="300" y="383" font-size="10" fill="#444">GET  /violations/stream</text>
+  <text x="300" y="398" font-size="10" fill="#444">GET  /exam-sessions/{id}</text>
+
+  <!-- WebSocket -->
+  <rect x="490" y="305" width="170" height="38" rx="5" fill="#E0F7FA" stroke="#26C6DA" stroke-width="1.5"/>
+  <text x="575" y="323" text-anchor="middle" font-size="12" font-weight="bold" fill="#00695C">/ws/exam-clock</text>
+  <text x="575" y="337" text-anchor="middle" font-size="9" fill="#555">WebSocket Router</text>
+
+  <rect x="490" y="352" width="170" height="40" rx="4" fill="#fff" stroke="#E0E0E0"/>
+  <text x="500" y="370" font-size="10" fill="#444">WS /ws/exam-clock/{exam_id}</text>
+  <text x="500" y="385" font-size="10" fill="#444">  → countdown sync</text>
+
+  <!-- Connecting lines from app to routers -->
+  <line x1="115" y1="130" x2="115" y2="165" stroke="#999" stroke-width="1"/>
+  <line x1="285" y1="130" x2="285" y2="165" stroke="#999" stroke-width="1"/>
+  <line x1="455" y1="130" x2="455" y2="165" stroke="#999" stroke-width="1"/>
+  <line x1="625" y1="130" x2="625" y2="165" stroke="#999" stroke-width="1"/>
+
+  <!-- Horizontal line -->
+  <line x1="115" y1="130" x2="625" y2="130" stroke="#999" stroke-width="1"/>
+  <line x1="360" y1="125" x2="360" y2="130" stroke="#999" stroke-width="1"/>
+</svg>
